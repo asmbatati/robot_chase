@@ -7,9 +7,13 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(nav_msgs REQUIRED)
+
+# Include directories
+include_directories(include)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -22,5 +26,32 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+# Libraries
+add_library(robot_chase_class src/robot_chase_class.cpp)
+
+install(TARGETS robot_chase_class
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+# Link dependencies to libraries
+ament_target_dependencies(robot_chase_class rclcpp geometry_msgs tf2_ros nav_msgs)
+
+# Executables
+add_executable(robot_chase src/robot_chase.cpp)
+
+# Link libraries to executables
+target_link_libraries(robot_chase robot_chase_class)
+
+# Install additional files
+install(TARGETS robot_chase
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY
+  DESTINATION share/${PROJECT_NAME}/
+)
 
 ament_package()
